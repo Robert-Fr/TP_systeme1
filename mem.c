@@ -3,31 +3,60 @@
 #include "mem_os.h"
 #include "common.h"
 #include <stdio.h>
+#define MEM_ALIGN 8
+
+char* memory[MEMORY_SIZE]; 
 
 struct fb{ 
 	size_t size;
 	struct fb *next;
 };
 
+struct tete_memoire {
+	struct fb* head;
+	mem_fit_function_t* fit_func;
+};
 
 //-------------------------------------------------------------
 // mem_init
 //-------------------------------------------------------------
 void mem_init() {
-	*((struct fb*)memory) = (struct fb*) ( (char *) get_memory_adr() + sizeof(struct fb*) );
-	struct fb* zoneLibre=*((struct fb*)memory);
-	zoneLibre->size=get_memory_size()-sizeof(struct fb*);
-	zoneLibre->next=null;
-	mem_fit(mem_fit_first);
+	struct fb* adr_fin_en_tete=(((struct fb*) memory)+sizeof(struct tete_memoire* ));//car on va stoquer une en tete au debut de la mémoire
+	//on gèrera l'alignement de la façon suivante:
+	//on prend comme prédicat de départ avant toute allocation que l'adresse de début est une adress correctement allginé
+	//on s'occupe donc uniquement d'aligné la fin de chaque zone aloué selo la taille que l'utilisateur donne
+	//adr_fin_en_tete = (struct fb*)((char *)adr_fin_en_tete+(MEM_ALIGN -( (int)adr_fin_en_tete % MEM_ALIGN )));
+	struct tete_memoire* en_tete = (struct tete_memoire*) memory; // on place notre en tete en debut de mémoire
+	//on rempli les champs de l'en tete :
+	// en_tete->fit_func sera rempli dans mem_fit :
+	mem_fit(mem_first_fit);
+	//*((struct fb*) memory) = *(struct fb*) ( (char *) get_memory_adr() + sizeof(struct fb*) );
+	//(struct fb*) memory =adr_fin_en_tete; //on met en tete de memory le début de la zone libre 
+	
+	struct fb* zoneLibre=adr_fin_en_tete;//on place l'entete de notre premiere zone libre a l'adresse qui est indiqué en début de mémoire
+	zoneLibre->size=(struct fb*)get_memory_size()-adr_fin_en_tete;// on rempli la zone mémoire qui indique la taille de la zone libre
+	zoneLibre->next=NULL; //on rempli la zone mémoire qui indique la prochaine zone libre
+	en_tete->head= zoneLibre;
+	
 }
 
 //-------------------------------------------------------------
 // mem_alloc
 //-------------------------------------------------------------
 void* mem_alloc(size_t size) {
-   /* A COMPLETER */ 
-	
-        return NULL;
+	void* adr_aloue;
+	mem_fit_function_t* fit_fct = ((struct tete_memoire*)memory)->fit_func; // le pointeur de fonction
+	//on appelle la fonction associé à la stratégie que l'on veut appliquer pour allouer de la mémoire
+	if(*fit_fct == mem_first_fit ) {
+		adr_aloue=mem_first_fit(((struct fb*) memory),size);
+	}
+	else if (*fit_fct == mem_worst_fit ) {
+		adr_aloue=mem_worst_fit(((struct fb*) memory),size);
+	}
+	else if (*fit_fct == mem_best_fit ) {
+		adr_aloue=mem_best_fit(((struct fb*) memory),size);
+	}	
+        return adr_aloue;
 }
 
 //-------------------------------------------------------------
@@ -49,15 +78,15 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 // mem_fit
 //-------------------------------------------------------------
 void mem_fit(mem_fit_function_t* mff) {
-   /* A COMPLETER */ 
+	((struct tete_memoire *) memory) -> fit_func= mff;
+//(mem_fit_function_t*) (((struct fb*) memory)+sizeof(struct fb*)) =mff;//on stoque notre pointeur sur fonction en memoire	
 }
 
 //-------------------------------------------------------------
 // Stratégies d'allocation 
 //-------------------------------------------------------------
 struct fb* mem_first_fit(struct fb* head, size_t size) {
-   /* A COMPLETER */
-    if(head==null) return NULL;
+    if(head==NULL) return NULL;
     struct fb* p=head;
     
     do{
@@ -87,35 +116,37 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
 }
 //-------------------------------------------------------------
 struct fb* mem_best_fit(struct fb* head, size_t size) {
-   /* A COMPLETER */ 
-   if(head==null) return NULL;
+   if(head==NULL) return NULL;
     struct fb* p=head;
-    void* adr_avant = p;
+    struct fb* avant = p;
+    struct fb* aloue = p->next;
     void* adr_aloue = p->next;
 	
     do{
-	if (adr_aloue->size >= p->next->size && p->next->size >= size ) {
+	if (aloue->size >= p->next->size && p->next->size >= size ) {
 	//il y a la place de stoquer notre donnée et si la place et plus petit que ce qu'on a trouvé avant
-		adr_avant = p; //On prend l'adr d'avant pour continuer la chaine
-		adr_aloue = p->next; //On prend la nouveau zone libre jusque la prochaine 
+		avant = p; //On prend l'adr d'avant pour continuer la chaine
+		aloue = p->next; //On prend la nouveau zone libre jusque la prochaine
+		adr_aloue = p->next;
+ 
 		p=p->next;//On avance
 	}
 	else{
 		p=p->next; // on passe a la zone libre suivante car pas de place
 	}
     }while(p->next!=NULL);
-    if(adr_aloue->size - size >= sizeof(struct fb*) ){ 
+    if(aloue->size - size >= sizeof(struct fb*) ){ 
 	//si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
 			
-		struct fb* zone_libre=adr_aloue+size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
-		zone_libre->size =adr_aloue->size - size ;
-		zone_libre->next = adr_aloue->next;
-		adr_avant->next=zone_libre;
+		struct fb* zone_libre=aloue+size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+		zone_libre->size =aloue->size - size ;
+		zone_libre->next = aloue->next;
+		avant->next=zone_libre;
 		return adr_aloue;
     }
     else {
     //si il n'y a pas de place on prend toute sa zone libre
-		adr_avant->next=adr_aloue->next;
+		avant->next=aloue->next;
 		return adr_aloue;
     }
     return NULL;
@@ -123,35 +154,36 @@ struct fb* mem_best_fit(struct fb* head, size_t size) {
 }
 //-------------------------------------------------------------
 struct fb* mem_worst_fit(struct fb* head, size_t size) {
-   /* A COMPLETER */ 
-    if(head==null) return NULL;
+    if(head==NULL) return NULL;
     struct fb* p=head;
-    void* adr_avant = p;
+    struct fb* avant = p;
+    struct fb* aloue = p->next;
     void* adr_aloue = p->next;
 	
     do{
-	if (adr_aloue->size <= p->next->size && p->next->size >= size ) {
+	if (aloue->size <= p->next->size && p->next->size >= size ) {
 	//il y a la place de stoquer notre donnée et si la place et plus grand que ce qu'on a trouvé avant
-		adr_avant = p; //On prend l'adr d'avant pour continuer la chaine
-		adr_aloue = p->next; //On prend la nouveau zone libre jusque la prochaine 
+		avant = p; //On prend l'adr d'avant pour continuer la chaine
+		aloue = p->next; //On prend la nouveau zone libre jusque la prochaine 
+		adr_aloue = p->next;
 		p=p->next;//On avance
 	}
 	else{
 		p=p->next; // on passe a la zone libre suivante car pas de place
 	}
     }while(p->next!=NULL);
-    if(adr_aloue->size - size >= sizeof(struct fb*) ){ 
+    if(aloue->size - size >= sizeof(struct fb*) ){ 
 	//si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
 			
-		struct fb* zone_libre=adr_aloue+size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
-		zone_libre->size =adr_aloue->size - size ;
-		zone_libre->next = adr_aloue->next;
-		adr_avant->next=zone_libre;
+		struct fb* zone_libre=aloue+size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+		zone_libre->size =aloue->size - size ;
+		zone_libre->next = aloue->next;
+		avant->next=zone_libre;
 		return adr_aloue;
     }
     else {
     //si il n'y a pas de place on prend toute sa zone libre
-		adr_avant->next=adr_aloue->next;
+		avant->next=aloue->next;
 		return adr_aloue;
     }
     return NULL;
