@@ -99,12 +99,18 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
             if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
                 void* adr_aloue = p;
+                //on sauvegarde ce qui se trouve dans p car va être écrasé
+                size_t taille_zone=p->size;
+                struct fb* suivant=p->next
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                 struct ab* new_alloc_block=(struct ab*)p;
                 new_alloc_block->size=size+sizeof(struct ab);
-                struct fb* zone_libre=p+(new_alloc_block->size);//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
-                zone_libre->size =p->size - size ;
-                zone_libre->next = p->next;
+                //on gère l'allignement 
+                if (new_alloc_block->size % MEM_ALIGN != 0)
+                    new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
+                struct fb* zone_libre=p+(struct fb*)(new_alloc_block->size);//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+                zone_libre->size =taille_zone - size ;
+                zone_libre->next = suivant;
                 p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
                 return adr_aloue;
             }
@@ -115,6 +121,9 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                  struct ab* new_alloc_block=(struct ab*)p;
                 new_alloc_block->size=size+sizeof(struct ab);
+                //on gère l'allignement 
+                if (new_alloc_block->size % MEM_ALIGN != 0)
+                    new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
                 return adr_aloue;
             }
         }
