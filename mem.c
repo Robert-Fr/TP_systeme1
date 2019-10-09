@@ -89,6 +89,9 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     if(head==NULL) return NULL;
     struct fb* p=head;//notre block de parcours
     struct fb* p_pred=head;//notre block de parcours qui précède le block défini si dessus
+    //on gère l'alignement
+    if (size % MEM_ALIGN != 0)
+        size+=(MEM_ALIGN - (size % MEM_ALIGN));
     
     while(p->next != NULL) {
         if (p->size >= size + sizeof(struct ab)) {
@@ -99,7 +102,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                 struct ab* new_alloc_block=(struct ab*)p;
                 new_alloc_block->size=size+sizeof(struct ab);
-                struct fb* zone_libre=p+new_alloc_block.size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+                struct fb* zone_libre=p+(new_alloc_block->size);//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
                 zone_libre->size =p->size - size ;
                 zone_libre->next = p->next;
                 p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
@@ -116,7 +119,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
             }
         }
         else{
-            p_pred=p
+            p_pred=p;
             p=p->next; // on passe a la zone libre suivante car pas de place
         }
     }
