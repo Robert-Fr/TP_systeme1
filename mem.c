@@ -64,7 +64,57 @@ void* mem_alloc(size_t size) {
 // mem_free
 //-------------------------------------------------------------
 void mem_free(void* zone) {
-   /* A COMPLETER */ 
+    //NOTA BENE : on ne fait pas d verification sur le parametre pour le moment 
+    // c'est a dire qu'on ne verifie pas que c'est bien une adresse dans notre mémoire, qui désigne bien une zone occupée, ...
+   //on récupère la liste des zones libres pour parcourir la mémoire
+   struct fb* p=((struct tete_memoire*)get_memory_adr())->head;
+   struct fb* p_pred=((struct tete_memoire*)get_memory_adr())->head;
+   struct fa* to_free_bloc=zone;
+   //on gere le cas particulier ou la memoire est pleine
+   
+   //on gere le cas particulier ou la zone à libérer est avant la tete de la liste des zones libres 
+   
+   while(p!=NULL){
+        //si on a pas encore dépassé la zone à libérer
+        if((char*)p <= (char*)to_free_bloc){
+            //on avance dans notre parcours
+            p_pred=p;
+            p=p->next;
+        }
+        else {
+            //LE CODE NE VA PAS MARCHER : IL FAUT PEUT ETRE IMBRIQUER LES IF ETC POUR GERER TOUT LES CAS POSSIBLE 
+            //y a t'il besoin de faire une fusion à gauche ?
+            if ((char*)p_pred+(p_pred->size) == (char*)to_free_bloc){
+                struct fb* fusion_gauche= p_pred;
+                size_t taille=p_pred->size;
+                struct fb* suivant=p_pred->next;
+                fusion_gauche->next=suivant;
+                fusion_gauche->size=taille + to_free_bloc->size;
+            }
+            else{
+                struct fb* new_fb= to_free_bloc;
+                size_t taille=to_free_bloc->size;
+                new_fb->next=p;
+                new_fb->size=taille-sizeof(struct fa)+sizeof(struct fb);
+                p_pred->next=new_fb;
+            }
+            //y a t'il besoin de faire une fusion à droite ?
+            if ((char*)to_free_bloc + (to_free_bloc->size) == (char *) p){
+                struct fb* fusion_droite= to_free_bloc;
+                size_t taille=to_free_bloc->size;
+                fusion_droite->next=p->next;
+                fusion_droite->size=taille + p->size;
+                p_pred->next=fusion_droite;
+            }
+            else{
+                struct fb* new_fb= to_free_bloc;
+                size_t taille=to_free_bloc->size;
+                new_fb->next=p;
+                new_fb->size=taille-sizeof(struct fa)+sizeof(struct fb);
+                p_pred->next=new_fb;
+            }
+        }
+   }
 }
 
 //-------------------------------------------------------------
@@ -96,7 +146,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     while(p != NULL) {
         if (p->size >= size + sizeof(struct ab)) {
         //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
-            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb) ){ 
+            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
                 void* adr_aloue = p;
                 //on sauvegarde ce qui se trouve dans p car va être écrasé
