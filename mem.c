@@ -6,12 +6,15 @@
 #define MEM_ALIGN 8
 
 //char* memory[MEMORY_SIZE]; 
-
+//structure représentant les informations d'un "free block"
 struct fb{ 
 	size_t size;
 	struct fb *next;
 };
-
+//structure représentant les informations d'un "allocated block"
+struct ab{
+    size_t size;// NOTA BENE : size = la taille de la zone ET la sizeof(struct ab) pour soulager la synthaxe
+}
 struct tete_memoire {
 	struct fb* head;
 	mem_fit_function_t* fit_func;
@@ -84,31 +87,41 @@ void mem_fit(mem_fit_function_t* mff) {
 //-------------------------------------------------------------
 struct fb* mem_first_fit(struct fb* head, size_t size) {
     if(head==NULL) return NULL;
-    struct fb* p=head;
+    struct fb* p=head;//notre block de parcours
+    struct fb* p_pred=head;//notre block de parcours qui précède le block défini si dessus
     
-    do{
-	if (p->next->size >= size ) {
-	//il y a la place de stoquer notre donnée
-		if(p->next->size - size >= sizeof(struct fb*) ){ 
-		//si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
-			void* adr_aloue = p->next;
-			struct fb* zone_libre=p->next+size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
-			zone_libre->size =p->next->size - size ;
-			zone_libre->next = p->next->next;
-			p->next=zone_libre;
-			return adr_aloue;
-		}
-		else {
-		//si il n'y a pas de place on prend toute sa zone libre
-			void* adr_aloue = p->next;
-			p->next=p->next->next;
-			return adr_aloue;
-		}
-	}
-	else{
-		p=p->next; // on passe a la zone libre suivante car pas de place
-	}
-    }while(p->next!=NULL);
+    while(p->next != NULL) {
+        if (p->size >= size + sizeof(struct ab) {
+        //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
+            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
+            //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
+                void* adr_aloue = p;
+                //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
+                struct ab new_alloc_block;
+                new_alloc_block.size=size+sizeof(struct ab);
+                (struct ab*)p=new_alloc_block;
+                struct fb* zone_libre=p+new_alloc_block.size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+                zone_libre->size =p->size - size ;
+                zone_libre->next = p->next;
+                p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
+                return adr_aloue;
+            }
+            else {
+            //si il n'y a pas de place on prend toute sa zone libre
+                void* adr_aloue = p;
+                p_pred->next=p->next;
+                //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
+                struct ab new_alloc_block;
+                new_alloc_block.size=size+sizeof(struct ab);
+                (struct ab*)p=new_alloc_block;
+                return adr_aloue;
+            }
+        }
+        else{
+            p_pred=p
+            p=p->next; // on passe a la zone libre suivante car pas de place
+        }
+    }
     return NULL;
 }
 //-------------------------------------------------------------
