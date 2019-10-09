@@ -99,7 +99,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                 struct ab new_alloc_block;
                 new_alloc_block.size=size+sizeof(struct ab);
-                (struct ab*)p=new_alloc_block;
+                *p=new_alloc_block;
                 struct fb* zone_libre=p+new_alloc_block.size;//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
                 zone_libre->size =p->size - size ;
                 zone_libre->next = p->next;
@@ -113,7 +113,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                 struct ab new_alloc_block;
                 new_alloc_block.size=size+sizeof(struct ab);
-                (struct ab*)p=new_alloc_block;
+                *p=new_alloc_block;
                 return adr_aloue;
             }
         }
