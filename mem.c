@@ -14,7 +14,7 @@ struct fb{
 //structure représentant les informations d'un "allocated block"
 struct ab{
     size_t size;// NOTA BENE : size = la taille de la zone ET la sizeof(struct ab) pour soulager la synthaxe
-}
+};
 struct tete_memoire {
 	struct fb* head;
 	mem_fit_function_t* fit_func;
@@ -91,7 +91,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     struct fb* p_pred=head;//notre block de parcours qui précède le block défini si dessus
     
     while(p->next != NULL) {
-        if (p->size >= size + sizeof(struct ab) {
+        if (p->size >= size + sizeof(struct ab)) {
         //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
             if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
