@@ -96,7 +96,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     while(p != NULL) {
         if (p->size >= size + sizeof(struct ab)) {
         //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
-            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
+            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb) ){ 
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
                 void* adr_aloue = p;
                 //on sauvegarde ce qui se trouve dans p car va être écrasé
