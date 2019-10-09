@@ -46,13 +46,13 @@ void* mem_alloc(size_t size) {
 	mem_fit_function_t* fit_fct = ((struct tete_memoire*)get_memory_adr())->fit_func; // le pointeur de fonction
 	//on appelle la fonction associé à la stratégie que l'on veut appliquer pour allouer de la mémoire
 	if(*fit_fct == mem_first_fit ) {
-		adr_aloue=mem_first_fit(((struct tete_memoire*) get_memory_adr()->head),size);
+		adr_aloue=mem_first_fit((((struct tete_memoire*) get_memory_adr())->head),size);
 	}
 	else if (*fit_fct == mem_worst_fit ) {
-		adr_aloue=mem_worst_fit(((struct tete_memoire*) get_memory_adr()->head),size);
+		adr_aloue=mem_worst_fit((((struct tete_memoire*) get_memory_adr())->head),size);
 	}
 	else if (*fit_fct == mem_best_fit ) {
-		adr_aloue=mem_best_fit(((struct tete_memoire*) get_memory_adr()->head),size);
+		adr_aloue=mem_best_fit((((struct tete_memoire*) get_memory_adr())->head),size);
 	}	
         return adr_aloue;
 }
