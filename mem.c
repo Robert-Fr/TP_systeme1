@@ -5,7 +5,7 @@
 #include <stdio.h>
 #define MEM_ALIGN 8
 
-char* memory[MEMORY_SIZE]; 
+//char* memory[MEMORY_SIZE]; 
 
 struct fb{ 
 	size_t size;
@@ -21,21 +21,19 @@ struct tete_memoire {
 // mem_init
 //-------------------------------------------------------------
 void mem_init() {
-	struct fb* adr_fin_en_tete=(((struct fb*) memory)+sizeof(struct tete_memoire* ));//car on va stoquer une en tete au debut de la mémoire
+	//struct fb* adr_fin_en_tete=(((struct fb*) memory)+sizeof(struct tete_memoire* ));//car on va stoquer une en tete au debut de la mémoire
+	struct tete_memoire* en_tete = get_memory_adr();
 	//on gèrera l'alignement de la façon suivante:
 	//on prend comme prédicat de départ avant toute allocation que l'adresse de début est une adress correctement allginé
 	//on s'occupe donc uniquement d'aligné la fin de chaque zone aloué selo la taille que l'utilisateur donne
-	//adr_fin_en_tete = (struct fb*)((char *)adr_fin_en_tete+(MEM_ALIGN -( (int)adr_fin_en_tete % MEM_ALIGN )));
-	struct tete_memoire* en_tete = (struct tete_memoire*) memory; // on place notre en tete en debut de mémoire
 	//on rempli les champs de l'en tete :
-	// en_tete->fit_func sera rempli dans mem_fit :
+    // en_tete->fit_func sera rempli dans mem_fit :
 	mem_fit(mem_first_fit);
-	//*((struct fb*) memory) = *(struct fb*) ( (char *) get_memory_adr() + sizeof(struct fb*) );
-	//(struct fb*) memory =adr_fin_en_tete; //on met en tete de memory le début de la zone libre 
-	
-	struct fb* zoneLibre=adr_fin_en_tete;//on place l'entete de notre premiere zone libre a l'adresse qui est indiqué en début de mémoire
-	zoneLibre->size=(struct fb*)get_memory_size()-adr_fin_en_tete;// on rempli la zone mémoire qui indique la taille de la zone libre
+    //on initialise la premiere zone libre
+	struct fb* zoneLibre=get_memory_adr()+sizeof(struct tete_memoire);//on place notre premiere zone libre
+	zoneLibre->size=(struct fb*)get_memory_size()-sizeof(struct tete_memoire);// on rempli la zone mémoire qui indique la taille de la zone libre
 	zoneLibre->next=NULL; //on rempli la zone mémoire qui indique la prochaine zone libre
+    //Notre tete de memoire pointe sur la premiere zone libre
 	en_tete->head= zoneLibre;
 	
 }
@@ -78,8 +76,7 @@ void mem_show(void (*print)(void *, size_t, int free)) {
 // mem_fit
 //-------------------------------------------------------------
 void mem_fit(mem_fit_function_t* mff) {
-	((struct tete_memoire *) memory) -> fit_func= mff;
-//(mem_fit_function_t*) (((struct fb*) memory)+sizeof(struct fb*)) =mff;//on stoque notre pointeur sur fonction en memoire	
+	((struct tete_memoire *) get_memory_adr()) -> fit_func= mff;
 }
 
 //-------------------------------------------------------------
