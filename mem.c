@@ -31,7 +31,7 @@ void mem_init() {
 	mem_fit(mem_first_fit);
     //on initialise la premiere zone libre
 	struct fb* zoneLibre=get_memory_adr()+sizeof(struct tete_memoire);//on place notre premiere zone libre
-	zoneLibre->size=(struct fb*)get_memory_size()-sizeof(struct tete_memoire);// on rempli la zone mémoire qui indique la taille de la zone libre
+	zoneLibre->size=get_memory_size()-sizeof(struct tete_memoire);// on rempli la zone mémoire qui indique la taille de la zone libre
 	zoneLibre->next=NULL; //on rempli la zone mémoire qui indique la prochaine zone libre
     //Notre tete de memoire pointe sur la premiere zone libre
 	en_tete->head= zoneLibre;
@@ -43,16 +43,16 @@ void mem_init() {
 //-------------------------------------------------------------
 void* mem_alloc(size_t size) {
 	void* adr_aloue;
-	mem_fit_function_t* fit_fct = ((struct tete_memoire*)memory)->fit_func; // le pointeur de fonction
+	mem_fit_function_t* fit_fct = ((struct tete_memoire*)get_memory_adr())->fit_func; // le pointeur de fonction
 	//on appelle la fonction associé à la stratégie que l'on veut appliquer pour allouer de la mémoire
 	if(*fit_fct == mem_first_fit ) {
-		adr_aloue=mem_first_fit(((struct fb*) memory),size);
+		adr_aloue=mem_first_fit(((struct tete_memoire*) get_memory_adr()->head),size);
 	}
 	else if (*fit_fct == mem_worst_fit ) {
-		adr_aloue=mem_worst_fit(((struct fb*) memory),size);
+		adr_aloue=mem_worst_fit(((struct tete_memoire*) get_memory_adr()->head),size);
 	}
 	else if (*fit_fct == mem_best_fit ) {
-		adr_aloue=mem_best_fit(((struct fb*) memory),size);
+		adr_aloue=mem_best_fit(((struct tete_memoire*) get_memory_adr()->head),size);
 	}	
         return adr_aloue;
 }
