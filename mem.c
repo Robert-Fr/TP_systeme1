@@ -93,7 +93,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     if (size % MEM_ALIGN != 0)
         size+=(MEM_ALIGN - (size % MEM_ALIGN));
     
-    while(p->next != NULL) {
+    while(p != NULL) {
         if (p->size >= size + sizeof(struct ab)) {
         //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
             if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
