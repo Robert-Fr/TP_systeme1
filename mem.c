@@ -13,7 +13,7 @@ struct fb{
 };
 //structure représentant les informations d'un "allocated block"
 struct ab{
-    size_t size;// NOTA BENE : size = la taille de la zone ET la sizeof(struct ab) pour soulager la synthaxe
+    size_t size;// NOTA BENE : size = la taille de la zone SANS la sizeof(struct ab)  qui se trouve avant l'adresse d'une zone occupée
 };
 struct tete_memoire {
 	struct fb* head;
@@ -34,7 +34,7 @@ void mem_init() {
 	mem_fit(mem_first_fit);
     //on initialise la premiere zone libre
 	struct fb* zoneLibre=get_memory_adr()+sizeof(struct tete_memoire);//on place notre premiere zone libre
-	zoneLibre->size=get_memory_size()-sizeof(struct tete_memoire);// on rempli la zone mémoire qui indique la taille de la zone libre
+	zoneLibre->size=get_memory_size()-sizeof(struct tete_memoire)-sizeof(struct fb);// on rempli la zone mémoire qui indique la taille de la zone libre
 	zoneLibre->next=NULL; //on rempli la zone mémoire qui indique la prochaine zone libre
     //Notre tete de memoire pointe sur la premiere zone libre
 	en_tete->head= zoneLibre;
@@ -81,38 +81,38 @@ void mem_free(void* zone) {
             p_pred=p;
             p=p->next;
         }
+        //si on à dépassé la zone à libérer on peut procéder à la libération
         else {
-            //LE CODE NE VA PAS MARCHER : IL FAUT PEUT ETRE IMBRIQUER LES IF ETC POUR GERER TOUT LES CAS POSSIBLE 
-            //y a t'il besoin de faire une fusion à gauche ?
-            if ((char*)p_pred+(p_pred->size) == (char*)to_free_bloc){
-                struct fb* fusion_gauche= p_pred;
-                size_t taille=p_pred->size;
-                struct fb* suivant=p_pred->next;
-                fusion_gauche->next=suivant;
-                fusion_gauche->size=taille + to_free_bloc->size;
+            //on récupère la taille de la zone à libérer :
+            size_t to_free_size=to_free_bloc->size + sizeof(struct ab);
+            //on initialise un pointeur sur zone libre, on le remplira en fonction du cas dans lequel on se trouve 
+            (struct fb*) new_free_bloc;
+            //Est ce que le bloc à libérer est collé au prédécesseur de notre bloc de parcours ?
+            if( ((char*)p_pred)+p_pred->size+sizeof(struct fb) == ((char* )to_free_bloc)-sizeof(struct ab)){
+                //si c'est le cas : la nouvelle zone libre commence à partir du prédécesseur et s'étend (au moins) jusqu'a la fin du bloc à libérer
+                new_free_bloc=p_pred;
+                new_free_bloc->size= p_pred->size + to_free_size;
             }
             else{
-                struct fb* new_fb= to_free_bloc;
-                size_t taille=to_free_bloc->size;
-                new_fb->next=p;
-                new_fb->size=taille-sizeof(struct fa)+sizeof(struct fb);
-                p_pred->next=new_fb;
+                //sinon : la nouvelle zone libre commence à partir de l'adresse donné -sizeof(la structure qui décrit un bloc occupé) et s'étend (au moins) jusqu'a la fin du bloc à libérer
+                new_free_bloc=((char*)to_free_bloc) -sizeof(struct ab);
+                new_free_bloc->size=to_free_size;
+                p_pred->next=new_free_bloc;
             }
-            //y a t'il besoin de faire une fusion à droite ?
-            if ((char*)to_free_bloc + (to_free_bloc->size) == (char *) p){
-                struct fb* fusion_droite= to_free_bloc;
-                size_t taille=to_free_bloc->size;
-                fusion_droite->next=p->next;
-                fusion_droite->size=taille + p->size;
-                p_pred->next=fusion_droite;
+            //est ce que le bloc à libérer est collé à notre bloc de parcours ?
+            if(((char* )to_free_bloc)+(to_free_bloc->size)== p){
+                // si c'est le cas la nouvelle zone libre s'étend jusqu'a la fin de notre bloc de parcours
+                //on modifie donc la taille et le suivant :
+                new_free_bloc->size += p->size +sizeof(struct fb);
+                new_free_bloc->next = p->next;
             }
             else{
-                struct fb* new_fb= to_free_bloc;
-                size_t taille=to_free_bloc->size;
-                new_fb->next=p;
-                new_fb->size=taille-sizeof(struct fa)+sizeof(struct fb);
-                p_pred->next=new_fb;
+                //sinon : la nouvelle zone libre s'étend jusqu'a la fin de la zone à libérer
+                //on ne modifie pas la taille, mais on dit qui est le suivant :
+                new_free_bloc->next = p;
             }
+            //on a finit la libération
+            return;
         }
    }
 }
@@ -144,33 +144,34 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
         size+=(MEM_ALIGN - (size % MEM_ALIGN));
     
     while(p != NULL) {
-        if (p->size >= size + sizeof(struct ab)) {
+        if (p->size+sizeof(struct fb) >= size + sizeof(struct ab)) {
         //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
-            if(p->size - (size+sizeof(struct ab)) >= sizeof(struct fb*) ){ 
+            if(p->size + sizeof(struct fb) - (size+sizeof(struct ab)) >= sizeof(struct fb) ){ 
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
-                void* adr_aloue = p;
+                void* adr_aloue = ((char*)p)+sizeof(struct ab);
                 //on sauvegarde ce qui se trouve dans p car va être écrasé
-                size_t taille_zone=p->size;
+                size_t taille_zone=p->size+sizeof(struct fb);
                 struct fb* suivant=p->next;
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                 struct ab* new_alloc_block=(struct ab*)p;
-                new_alloc_block->size=size+sizeof(struct ab);
+                new_alloc_block->size=size;//+sizeof(struct ab);
                 //on gère l'allignement 
                 if (new_alloc_block->size % MEM_ALIGN != 0)
                     new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
-                struct fb* zone_libre=(struct fb *)((char*)p+(new_alloc_block->size));//on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
-                zone_libre->size =taille_zone -  new_alloc_block->size ;
+                //on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
+                struct fb* zone_libre=(struct fb *)((char*)p+(new_alloc_block->size )+sizeof(struct ab));
+                zone_libre->size =taille_zone -  new_alloc_block->size - sizeof(struct ab) -sizeof(struct fb) ;
                 zone_libre->next = suivant;
                 p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
                 return adr_aloue;
             }
             else {
             //si il n'y a pas de place on prend toute sa zone libre
-                void* adr_aloue = p;
+                void* adr_aloue = ((char*)p)+sizeof(struct ab);
                 p_pred->next=p->next;
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                  struct ab* new_alloc_block=(struct ab*)p;
-                new_alloc_block->size=size+sizeof(struct ab);
+                new_alloc_block->size=size;//+sizeof(struct ab);
                 //on gère l'allignement 
                 if (new_alloc_block->size % MEM_ALIGN != 0)
                     new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
