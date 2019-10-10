@@ -180,6 +180,8 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
     struct fb* p=head;//notre block de parcours
     struct fb* p_pred=p;//notre block de parcours qui précède le block défini si dessus
     //on gère l'alignement
+    if (size==0)
+        size ++;
     if (size % MEM_ALIGN != 0)
         size+=(MEM_ALIGN - (size % MEM_ALIGN));
     
