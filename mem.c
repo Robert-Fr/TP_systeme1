@@ -145,6 +145,7 @@ void mem_show(void (*print)(void *, size_t, int free)) {
    struct fb* p_libre=((struct tete_memoire*)get_memory_adr())->head;//on se place à la tete de la liste des zones libres
    char* p_mem_zone= (char *)get_memory_adr() + sizeof(struct tete_memoire);//on commence à lire après l'entete placé au début de la mémoire
    int size_printed=sizeof(struct tete_memoire); // sera notre condition d'arret lors du parcours
+   
    while (size_printed < get_memory_size()){
        if((char*)p_mem_zone==(char*)p_libre) {
        //on est dans le cas ou la zone pointé est libre
@@ -155,6 +156,7 @@ void mem_show(void (*print)(void *, size_t, int free)) {
            p_libre=p_libre->next;
        }
        else{
+           //on est dans le cas ou la zone pointé est occupée
            (*print)(p_mem_zone+sizeof(struct ab),((struct ab*)p_mem_zone)->size,0);
            //on incrémente nos variables pour passer à la zone suivante
            size_printed+=sizeof(struct ab)+((struct ab*)p_mem_zone)->size;
@@ -182,27 +184,29 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
         size+=(MEM_ALIGN - (size % MEM_ALIGN));
     
     while(p != NULL) {
+         //s'il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
         if (p->size+sizeof(struct fb) >= size + sizeof(struct ab)) {
-        //il y a la place de stoquer notre donnée + la structure qui donne la taille de la zone à occuper
-            if(p->size + sizeof(struct fb) - (size+sizeof(struct ab)) >= sizeof(struct fb) ){ 
+            
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
+            if(p->size + sizeof(struct fb) - (size+sizeof(struct ab)) >= sizeof(struct fb) ){ 
+            
                 void* adr_aloue = ((char*)p)+sizeof(struct ab);
                 //on sauvegarde ce qui se trouve dans p car va être écrasé
                 size_t taille_zone=p->size;
                 struct fb* suivant=p->next;
+                
                 //on place au début de cette zone aloué un struct ab
                 struct ab* new_alloc_block=(struct ab*)p;
                 new_alloc_block->size=size;
-                //on gère l'allignement 
-                if (new_alloc_block->size % MEM_ALIGN != 0)
-                    new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
+                
                 //on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
                 struct fb* zone_libre=(struct fb *)((char*)p+(new_alloc_block->size )+sizeof(struct ab));
-                zone_libre->size =taille_zone -  new_alloc_block->size - sizeof(struct ab) ;
+                zone_libre->size =taille_zone +sizeof(struct fb) -  new_alloc_block->size - sizeof(struct ab) ;
                 zone_libre->next = suivant;
-                //  IL FAUT GERER LE CAS OU ON CHANGE LA TETE DE LA LISTE DES ZONES LIBRES
-                // si p = p_pred c'est que la première zone libre de la liste est éligible à l'allocation de mémoire
+                
+                // si p == p_pred c'est que c'est la première zone libre de la liste qui est éligible à l'allocation de mémoire
                 if( p == p_pred ){
+                    //on place la nouvelle zone libre à la tete de la liste
                     ((struct tete_memoire*)get_memory_adr())->head=zone_libre;
                 }
                 else{
@@ -210,23 +214,22 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                 }
                 return adr_aloue;
             }
-            else {
             //si il n'y a pas de place on prend toute sa zone libre
+            else {
+           
                 void* adr_aloue = ((char*)p)+sizeof(struct ab);
-                //  IL FAUT GERER LE CAS OU ON CHANGE LA TETE DE LA LISTE DES ZONES LIBRES : 
-                // si p = p_pred c'est que la première zone libre de la liste est éligible à l'allocation de mémoire
+                
+                // si p = p_pred c'est que c'est la première zone libre de la liste qui est éligible à l'allocation de mémoire
                 if( p == p_pred ){
                     ((struct tete_memoire*)get_memory_adr())->head=p->next;
                 }
                 else{
-                    p_pred->next=p->next;;//le block qui précède notre block de parcours va désormais pointer vers la prochaine zone libre
+                    p_pred->next=p->next;//le block qui précède notre block de parcours va désormais pointer vers la prochaine zone libre
                 }
-                //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
+                //on place au début de cette zone aloué un struct ab
                  struct ab* new_alloc_block=(struct ab*)p;
-                new_alloc_block->size=size;//+sizeof(struct ab);
-                //on gère l'allignement 
-                if (new_alloc_block->size % MEM_ALIGN != 0)
-                    new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
+                new_alloc_block->size=size;
+
                 return adr_aloue;
             }
         }
