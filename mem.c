@@ -69,7 +69,7 @@ void mem_free(void* zone) {
    //on récupère la liste des zones libres pour parcourir la mémoire
    struct fb* p=((struct tete_memoire*)get_memory_adr())->head;
    struct fb* p_pred=((struct tete_memoire*)get_memory_adr())->head;
-   struct fa* to_free_bloc= (struct fa*)zone;
+   struct ab* to_free_bloc= (struct ab*)zone;
    //on gere le cas particulier ou la memoire est pleine
    
    //on gere le cas particulier ou la zone à libérer est avant la tete de la liste des zones libres 
