@@ -100,7 +100,7 @@ void mem_free(void* zone) {
                 p_pred->next=new_free_bloc;
             }
             //est ce que le bloc à libérer est collé à notre bloc de parcours ?
-            if((((char* )to_free_bloc)+(to_free_bloc->size))== p){
+            if( (struct fb*)(((char* )to_free_bloc)+(to_free_bloc->size))== p ){
                 // si c'est le cas la nouvelle zone libre s'étend jusqu'a la fin de notre bloc de parcours
                 //on modifie donc la taille et le suivant :
                 new_free_bloc->size += p->size +sizeof(struct fb);
