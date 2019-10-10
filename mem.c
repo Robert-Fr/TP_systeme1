@@ -72,8 +72,8 @@ void mem_free(void* zone) {
    struct ab* to_free_bloc= (struct ab*)zone;
    //on gere le cas particulier ou la memoire est pleine
    if(p == NULL){
-       size_t size=to_free_bloc->size
-       struct fb* new_free_bloc=(struct fb*) ((char*)to_free_bloc-sizeof(struct ab));
+       size_t size=to_free_bloc->size;
+       struct fb* new_free_bloc=(struct fb*)((char*)to_free_bloc-sizeof(struct ab));
        new_free_bloc->size=size+sizeof(struct ab);
        //memoire pleine donc le suivant est NULL
        new_free_bloc->next=NULL;
