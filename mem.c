@@ -84,9 +84,9 @@ void mem_free(void* zone) {
         //si on à dépassé la zone à libérer on peut procéder à la libération
         else {
             //on récupère la taille de la zone à libérer :
-            size_t to_free_size=to_free_bloc->size + sizeof(struct ab);
+            size_t to_free_size=(to_free_bloc->size) + sizeof(struct ab);
             //on initialise un pointeur sur zone libre, on le remplira en fonction du cas dans lequel on se trouve 
-            (struct fb*) new_free_bloc;
+            struct fb* new_free_bloc;
             //Est ce que le bloc à libérer est collé au prédécesseur de notre bloc de parcours ?
             if( ((char*)p_pred)+p_pred->size+sizeof(struct fb) == ((char* )to_free_bloc)-sizeof(struct ab)){
                 //si c'est le cas : la nouvelle zone libre commence à partir du prédécesseur et s'étend (au moins) jusqu'a la fin du bloc à libérer
@@ -100,7 +100,7 @@ void mem_free(void* zone) {
                 p_pred->next=new_free_bloc;
             }
             //est ce que le bloc à libérer est collé à notre bloc de parcours ?
-            if(((char* )to_free_bloc)+(to_free_bloc->size)== p){
+            if((((char* )to_free_bloc)+(to_free_bloc->size))== p){
                 // si c'est le cas la nouvelle zone libre s'étend jusqu'a la fin de notre bloc de parcours
                 //on modifie donc la taille et le suivant :
                 new_free_bloc->size += p->size +sizeof(struct fb);
