@@ -34,7 +34,7 @@ void mem_init() {
 	mem_fit(mem_first_fit);
     //on initialise la premiere zone libre
 	struct fb* zoneLibre=get_memory_adr()+sizeof(struct tete_memoire);//on place notre premiere zone libre
-	zoneLibre->size=get_memory_size()-sizeof(struct tete_memoire)-sizeof(struct fb);// on rempli la zone mémoire qui indique la taille de la zone libre
+	zoneLibre->size=get_memory_size()-sizeof(struct tete_memoire);//-sizeof(struct fb);// on rempli la zone mémoire qui indique la taille de la zone libre
 	zoneLibre->next=NULL; //on rempli la zone mémoire qui indique la prochaine zone libre
     //Notre tete de memoire pointe sur la premiere zone libre
 	en_tete->head= zoneLibre;
@@ -71,9 +71,9 @@ void mem_free(void* zone) {
    struct fb* p_pred=((struct tete_memoire*)get_memory_adr())->head;
    struct ab* to_free_bloc= (struct ab*)zone;
    //on gere le cas particulier ou la memoire est pleine
-   
+   // A FAIRE
    //on gere le cas particulier ou la zone à libérer est avant la tete de la liste des zones libres 
-   
+   // A FAIRE 
    while(p!=NULL){
         //si on a pas encore dépassé la zone à libérer
         if((char*)p <= (char*)to_free_bloc){
@@ -122,7 +122,27 @@ void mem_free(void* zone) {
 // mem_show
 //-------------------------------------------------------------
 void mem_show(void (*print)(void *, size_t, int free)) {
-   /* A COMPLETER */ 
+   //parcours des zones mémoires avec un pointeur, on à également besoin d'un pointeur sur les zones libre
+   //   ceci permet de différencier les zones occupées des zones libres
+   struct fb* p_libre=((struct tete_memoire*)get_memory_adr())->head;//on se place à la tete de la liste des zones libres
+   char* p_mem_zone= (char *)get_memory_adr() + sizeof(struct tete_memoire);//on commence à lire après l'entete placé au début de la mémoire
+   int size_printed=sizeof(struct tete_memoire); // sera notre condition d'arret lors du parcours
+   while (size_printed < get_memory_size()){
+       if(p_mem_zone==p_libre) {
+       //on est dans le cas ou la zone pointé est libre
+           (*print)(p_mem_zone+sizeof(struct fb),((struct fb*)p_mem_zone)->size,1);
+           //on incrémente nos variables pour passer à la zone suivante
+           size_printed+=sizeof(struct fb)+((struct fb*)p_mem_zone)->size;
+           p_mem_zone+=sizeof(struct fb)+((struct fb*)p_mem_zone)->size;
+           p_libre=p_libre->next;
+       }
+       else{
+           (*print)(p_mem_zone+sizeof(struct ab),((struct ab*)p_mem_zone)->size,0);
+           //on incrémente nos variables pour passer à la zone suivante
+           size_printed+=sizeof(struct ab)+((struct ab*)p_mem_zone)->size;
+           p_mem_zone+=sizeof(struct ab)+((struct ab*)p_mem_zone)->size;
+       }
+   }
 }
 
 //-------------------------------------------------------------
@@ -138,7 +158,7 @@ void mem_fit(mem_fit_function_t* mff) {
 struct fb* mem_first_fit(struct fb* head, size_t size) {
     if(head==NULL) return NULL;
     struct fb* p=head;//notre block de parcours
-    struct fb* p_pred=head;//notre block de parcours qui précède le block défini si dessus
+    struct fb* p_pred=((struct tete_memoire*)get_memory_adr());//notre block de parcours qui précède le block défini si dessus
     //on gère l'alignement
     if (size % MEM_ALIGN != 0)
         size+=(MEM_ALIGN - (size % MEM_ALIGN));
@@ -160,15 +180,29 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
                     new_alloc_block->size+=(MEM_ALIGN - (new_alloc_block->size % MEM_ALIGN));
                 //on créer la nouvelle zone libre à la suite de ce qui va être donnée à l'utilisateur
                 struct fb* zone_libre=(struct fb *)((char*)p+(new_alloc_block->size )+sizeof(struct ab));
-                zone_libre->size =taille_zone -  new_alloc_block->size - sizeof(struct ab) -sizeof(struct fb) ;
+                zone_libre->size =taille_zone -  new_alloc_block->size - sizeof(struct ab) ;//-sizeof(struct fb) ;
                 zone_libre->next = suivant;
-                p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
+                //  IL FAUT GERER LE CAS OU ON CHANGE LA TETE DE LA LISTE DES ZONES LIBRES
+                // si p = p_pred c'est que la première zone libre de la liste est éligible à l'allocation de mémoire
+                if( p == p_pred ){
+                    ((struct tete_memoire*)get_memory_adr())->head=zone_libre;
+                }
+                else{
+                    p_pred->next=zone_libre;//le block qui précède notre block de parcours va désormais pointer vers la nouvelle zone libre
+                }
                 return adr_aloue;
             }
             else {
             //si il n'y a pas de place on prend toute sa zone libre
                 void* adr_aloue = ((char*)p)+sizeof(struct ab);
-                p_pred->next=p->next;
+                //  IL FAUT GERER LE CAS OU ON CHANGE LA TETE DE LA LISTE DES ZONES LIBRES : 
+                // si p = p_pred c'est que la première zone libre de la liste est éligible à l'allocation de mémoire
+                if( p == p_pred ){
+                    ((struct tete_memoire*)get_memory_adr())->head=p->next;
+                }
+                else{
+                    p_pred->next=p->next;;//le block qui précède notre block de parcours va désormais pointer vers la prochaine zone libre
+                }
                 //on place au début de cette zone aloué un struct ab pour pouvoir récupérer sa taille si besoin
                  struct ab* new_alloc_block=(struct ab*)p;
                 new_alloc_block->size=size;//+sizeof(struct ab);
@@ -187,7 +221,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
 }
 //-------------------------------------------------------------
 struct fb* mem_best_fit(struct fb* head, size_t size) {
-   if(head==NULL) return NULL;
+   /*if(head==NULL) return NULL;
     struct fb* p=head;
     struct fb* avant = p;
     struct fb* aloue = p->next;
@@ -221,10 +255,11 @@ struct fb* mem_best_fit(struct fb* head, size_t size) {
 		return adr_aloue;
     }
     return NULL;
-
+    */
 }
 //-------------------------------------------------------------
 struct fb* mem_worst_fit(struct fb* head, size_t size) {
+    /*
     if(head==NULL) return NULL;
     struct fb* p=head;
     struct fb* avant = p;
@@ -258,4 +293,5 @@ struct fb* mem_worst_fit(struct fb* head, size_t size) {
 		return adr_aloue;
     }
     return NULL;
+    */
 }
