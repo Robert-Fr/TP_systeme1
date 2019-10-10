@@ -188,7 +188,7 @@ struct fb* mem_first_fit(struct fb* head, size_t size) {
             //si il y a la place pour créer une nouvelle zone libre à la suite de la zone à alouer
                 void* adr_aloue = ((char*)p)+sizeof(struct ab);
                 //on sauvegarde ce qui se trouve dans p car va être écrasé
-                size_t taille_zone=p->size+sizeof(struct fb);
+                size_t taille_zone=p->size;
                 struct fb* suivant=p->next;
                 //on place au début de cette zone aloué un struct ab
                 struct ab* new_alloc_block=(struct ab*)p;
