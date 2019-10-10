@@ -95,7 +95,7 @@ void mem_free(void* zone) {
             }
             else{
                 //sinon : la nouvelle zone libre commence à partir de l'adresse donné -sizeof(la structure qui décrit un bloc occupé) et s'étend (au moins) jusqu'a la fin du bloc à libérer
-                new_free_bloc=((char*)to_free_bloc) -sizeof(struct ab);
+                new_free_bloc=(struct fb*) (((char*)to_free_bloc) -sizeof(struct ab));
                 new_free_bloc->size=to_free_size;
                 p_pred->next=new_free_bloc;
             }
