@@ -71,9 +71,27 @@ void mem_free(void* zone) {
    struct fb* p_pred=((struct tete_memoire*)get_memory_adr())->head;
    struct ab* to_free_bloc= (struct ab*)zone;
    //on gere le cas particulier ou la memoire est pleine
-   // A FAIRE
+   if(p == NULL){
+       size_t size=to_free_bloc->size
+       struct fb* new_free_bloc=(struct fb*) ((char*)to_free_bloc-sizeof(struct ab));
+       new_free_bloc->size=size+sizeof(struct ab);
+       //memoire pleine donc le suivant est NULL
+       new_free_bloc->next=NULL;
+       //la zone libéré devient la tête
+       ((struct tete_memoire*)get_memory_adr())->head=new_free_bloc;
+       return;
+   }
    //on gere le cas particulier ou la zone à libérer est avant la tete de la liste des zones libres 
-   // A FAIRE 
+   if((char*)to_free_bloc < (char*) p){
+       size_t size=to_free_bloc->size;
+       struct fb* new_free_bloc=(struct fb*) ((char*)to_free_bloc-sizeof(struct ab));
+       new_free_bloc->size=size+sizeof(struct ab);
+       //le suivant est p
+       new_free_bloc->next=p;
+       //la zone libéré devient la tête
+       ((struct tete_memoire*)get_memory_adr())->head=new_free_bloc;
+       return;
+   }
    while(p!=NULL){
         //si on a pas encore dépassé la zone à libérer
         if((char*)p <= (char*)to_free_bloc){
