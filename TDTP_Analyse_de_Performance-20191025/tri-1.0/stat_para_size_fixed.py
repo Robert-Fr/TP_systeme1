@@ -1,7 +1,8 @@
 #arguments : <size> <nom_fichier_min> <nb_proc>
-#ouverture du fichier contenant les temps minimum pour une taille donnée :
+#ouverture du fichier contenant les temps minimum pour une taille donnee :
 import sys
 import os
+import subprocess
 
 min_time=[]
 min_time_file=open(sys.argv[2],"r")
@@ -14,7 +15,7 @@ min_time_file.close()
 
 acc_file_name="acc_size_fixed"+ sys.argv[1] + ".txt"
 eff_file_name="eff_size_fixed"+ sys.argv[1] + ".txt"
-#ouverture en écriture des deux fichiers et ecriture de l'entete
+#ouverture en ecriture des deux fichiers et ecriture de l'entete
 acc_file=open(acc_file_name,"w")
 acc_file.write("NB_Thread;Run_ID;Acc"+"\n")
 eff_file=open(eff_file_name,"w")
@@ -28,8 +29,8 @@ for i in [2,4,8,16,32]:
         #execution de ./tri_thread sys.argv[1] size NPO utiliser le nouveau vecteur 
         out=subprocess.check_output("./tri_threads --parallelism " + str(i) + " --rusage < " +nom_fichier_sortie,shell=True)
         out.decode("utf-8")
-        #recupérer la valeur de retour 
-        acc=min_time[sys.argv[1]-5]/float(out)
+        #recuperer la valeur de retour 
+        acc=min_time[int(sys.argv[1])-5]/float(out)
         eff=acc/float(sys.argv[3])
         #ecriture dans fich_acc -> 10^i;j;acc
         acc_file.write(str(i)+";"+str(j)+";"+str(acc)+"\n")
