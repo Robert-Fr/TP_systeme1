@@ -69,15 +69,15 @@ int main(int argc, char *argv[]) {
     argc -= optind;
     argv += optind;
 
-    affiche("Saisissez la taille du vecteur\n");
+    //affiche("Saisissez la taille du vecteur\n");
     scanf(" %d", &taille);
-    printf(" taille : %d \n",taille);
+    //printf(" taille : %d \n",taille);
     tableau = (int *) malloc(taille*sizeof(int));
     if (tableau == NULL) {
         fprintf(stderr,"Erreur de malloc\n");
         exit(3);
     }
-    affiche("Saisissez tous les elements du vecteur\n");
+    //affiche("Saisissez tous les elements du vecteur\n");
     for (i=0; i<taille; i++)
         scanf(" %d", &tableau[i]);
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 		tp_total->tv_sec=tp2->tv_sec - tp1->tv_sec;
 		tp_total->tv_usec=tp2->tv_usec - tp1->tv_usec;
 		
-		printf("Le temps de traitement est : %ld,%ld s\n", (long)tp_total->tv_sec,(long)tp_total->tv_usec);
+		//printf("%ld,%ld s\n", (long)tp_total->tv_sec,(long)tp_total->tv_usec);
 	}
 	if(ressources ==1 ){
 		 getrusage(RUSAGE_SELF,info_ressource2);
@@ -111,7 +111,8 @@ int main(int argc, char *argv[]) {
 		 info_ressource_total->ru_utime.tv_usec=info_ressource2->ru_utime.tv_usec-info_ressource1->ru_utime.tv_usec;
 		 info_ressource_total->ru_stime.tv_sec=info_ressource2->ru_stime.tv_sec-info_ressource_total->ru_stime.tv_sec;
 		 info_ressource_total->ru_stime.tv_usec=info_ressource2->ru_stime.tv_usec-info_ressource_total->ru_stime.tv_usec;
-		 printf("temps user cpu : %ld,%ld s \n temps system cpu : %ld,%ld s\n",(long)(info_ressource_total->ru_utime.tv_sec) ,(long)(info_ressource_total->ru_utime.tv_usec) ,(long)(info_ressource_total->ru_stime.tv_sec),(long)(info_ressource_total->ru_stime.tv_usec) );
+		 //printf("%ld.%ld\n",(long)(info_ressource_total->ru_utime.tv_sec)+(long)(info_ressource_total->ru_stime.tv_sec),(long)(info_ressource_total->ru_utime.tv_usec)+(long)(info_ressource_total->ru_stime.tv_usec) );
+		 printf("%lld\n",to_usec(info_ressource_total->ru_utime)+to_usec(info_ressource_total->ru_stime) );
     }
     return 0;
 }

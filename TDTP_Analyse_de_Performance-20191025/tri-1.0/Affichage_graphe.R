@@ -6,13 +6,13 @@ library(plyr)
 library(reshape2)
 
 # extraction des données
-data_para_acc <- data.frame(read.csv2(file="acc_2.txt",sep=';', dec='.'))
-data_para_eff <- data.frame(read.csv2("eff_2.txt",sep=';', dec='.'))
+data_para_acc <- data.frame(read.csv2(file="acc_th_fixed4.txt",sep=';', dec='.'))
+data_para_eff <- data.frame(read.csv2(file="eff_th_fixed4.txt",sep=';', dec='.'))
 
 # analyse statistique
 
-stat_acc<-ddply(data_para_naif,c("Taille_mat"),summarise,N=length(Acc),mean=mean(Acc),sd=sd(Acc),se=1.96*(sd/sqrt(N)))
-stat_eff<-ddply(data_para_transposee,c("Taille_mat"),summarise,N=length(Eff),mean=mean(Eff),sd=sd(Eff),se=1.96*(sd/sqrt(N)))
+stat_acc<-ddply(data_para_acc,c("Taille_mat"),summarise,N=length(Acc),mean=mean(Acc),sd=sd(Acc),se=1.96*(sd/sqrt(N)))
+stat_eff<-ddply(data_para_eff,c("Taille_mat"),summarise,N=length(Eff),mean=mean(Eff),sd=sd(Eff),se=1.96*(sd/sqrt(N)))
 
 
 # tracé des résultats obtenus
