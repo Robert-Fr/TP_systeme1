@@ -1,5 +1,5 @@
 # programme regroupant l'execution de plusieurs fonction :
-#nous allons calculer d'une part, pour une taille donnée dasn un ensemble de taile possible (10^1 -> 10^7), 
+#nous allons calculer d'une part, pour une taille donnee dasn un ensemble de taile possible (10^1 -> 10^7), 
 #l'evoluton de l'acc et l'eff du tri avec thread vs tri sequentiel, pour un ensemble de nombre de thread possible ( 2 4 8 16 32 )
 #d'une autre part pour un nombre de thread donnee ( 2 4 8 16 32 ) l'evolution de l'acc et l'eff en fonction de la taille du vecteur
 import sys
