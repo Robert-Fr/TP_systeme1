@@ -1,12 +1,12 @@
 # programme regroupant l'execution de plusieurs fonction :
 #nous allons calculer d'une part, pour une taille donnée dasn un ensemble de taile possible (10^1 -> 10^7), 
 #l'evoluton de l'acc et l'eff du tri avec thread vs tri sequentiel, pour un ensemble de nombre de thread possible ( 2 4 8 16 32 )
-#d'une autre part pour un nombre de thread donnée ( 2 4 8 16 32 ) l'evolution de l'acc et l'eff en fonction de la taille du vecteur
+#d'une autre part pour un nombre de thread donnee ( 2 4 8 16 32 ) l'evolution de l'acc et l'eff en fonction de la taille du vecteur
 import sys
 import os
 import subprocess
 
-#définition des fonctions qui seront utilisées :
+#definition des fonctions qui seront utilisees :
 # important : lancement du script : python Etude_statistique_tri_thread_vs_seq.py <nom_fichier_min> <nb_proc_machine> <>
 
 def gen_min_time_seq (output_file_param="min_time_seq.txt") :
@@ -111,11 +111,11 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
 #appel des fonctions :
 min_time_seq_file_name=sys.argv[1]
 nb_proc_sys=sys.argv[2]
-#on génère d'abord un fichier contenant les valeurs minimale de temps sur 100 execution que le tri sequentiel va mettre pour terminer pour chaque taille de notre ensemble
+#on genere d'abord un fichier contenant les valeurs minimale de temps sur 100 execution que le tri sequentiel va mettre pour terminer pour chaque taille de notre ensemble
 gen_min_time_seq()
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
-#on appelle ensuite les fonction générant les fichiers désirés, qui seront ensuite lu par un script R pour afficher les données sous forme de graphe :
+#on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
 #for size in ["1","2","3","4","5","6","7"]:
 for size in ["1","2"]:
     calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
