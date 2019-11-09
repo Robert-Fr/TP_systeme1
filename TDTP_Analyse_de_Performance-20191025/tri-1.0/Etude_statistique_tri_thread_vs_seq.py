@@ -13,13 +13,14 @@ def gen_min_time_seq (output_file_param="min_time_seq.txt") :
     output_file_name=output_file_param
     output=open(output_file_name,"w")
 
-    for i in range(0,8):
+    for i in range(0,9):
         min=1000000.0
         size=10**i
         nom_fichier_sortie="test_"+str(i)+".txt"
         out_useless=subprocess.check_output("./creer_vecteur --seed 42 --size " +str(size)+ " > "+ nom_fichier_sortie,shell=True)
         out_useless.decode("utf-8")
         for j in range(100):
+            print("execution "+str(j)+" de gen_min_time_seq pour size = "+ str(size))
             val=subprocess.check_output("./tri_sequentiel --rusage < "+ nom_fichier_sortie,shell=True)
             val.decode("utf-8")
             #print(float(val))
@@ -54,11 +55,12 @@ def calcul_stats_tri_size_fixed(size_param="5",nb_proc="8",min_time_file_param="
     for i in ["2","4","8","16","32"]:
         #generer un vecteur avec la nouvelle taille
         for j in range(100):
+            print("execution "+str(j)+" de calcul_stats_tri_size_fixed pour nb_th = "+ str(i))
             #execution de ./tri_thread sys.argv[1] size NPO utiliser le nouveau vecteur 
             out=subprocess.check_output("./tri_threads --parallelism " + str(i) + " --rusage < " +input_file_name,shell=True)
             out.decode("utf-8")
             #recuperer la valeur de retour 
-            acc=min_time[int(size_param)-5]/float(out)
+            acc=min_time[int(size_param)]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
             acc_file.write(str(i)+";"+str(j)+";"+str(acc)+"\n")
@@ -88,16 +90,17 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
     eff_file=open(eff_file_name,"w")
     eff_file.write("Taille_mat;Run_ID;Eff"+"\n")
 
-    for i in range(0,8):
+    for i in range(5,9):
         size=10**i
         input_file_name="test_"+str(i)+".txt"
         for j in range(100):
+            print("execution "+str(j)+" de calcul_stats_tri_th_fixed pour size = "+ str(size))
             #execution de ./tri_thread sys.argv[1] size NPO utiliser le nouveau vecteur
             out=subprocess.check_output("./tri_threads --parallelism " +  nb_threads + " --rusage < " +input_file_name,shell=True)
             out.decode("utf-8")
             #print(out)
             #recuperer la valeur de retour 
-            acc=min_time[i-0]/float(out)
+            acc=min_time[i]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
             acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
@@ -112,11 +115,11 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
 min_time_seq_file_name=sys.argv[1]
 nb_proc_sys=sys.argv[2]
 #on genere d'abord un fichier contenant les valeurs minimale de temps sur 100 execution que le tri sequentiel va mettre pour terminer pour chaque taille de notre ensemble
-#gen_min_time_seq()
+gen_min_time_seq()
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
-for size in ["1","2","3","4","5","6","7"]:
+for size in ["5","6","7","8"]:
     #for size in ["5","6"]:
     calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
    
