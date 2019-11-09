@@ -106,7 +106,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
 
     acc_file.close()
     eff_file.close()
-   print(" - execution nb threads fixe = " + nb_threads + " terminee")
+    print(" - execution nb threads fixe = " + nb_threads + " terminee")
 
 #appel des fonctions :
 min_time_seq_file_name=sys.argv[1]
