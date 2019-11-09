@@ -5,7 +5,7 @@ import os
 import subprocess
 
 min_time=[]
-min_time_file=open(sys.argv[2],"r")
+min_time_file=open("min_time_seq.txt","r")
 it=0
 #remplissage de la liste avec les valeurs du fichier
 for line in min_time_file:
@@ -35,7 +35,7 @@ for i in range(0,7):
         #print(out)
         #recuperer la valeur de retour 
         acc=min_time[i-0]/float(out)
-        eff=acc/float(sys.argv[3])
+        eff=acc/float(sys.argv[2])
         #ecriture dans fich_acc -> 10^i;j;acc
         acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
         #ecriture dans fich_eff -> 10^i;j;eff

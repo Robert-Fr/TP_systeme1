@@ -21,4 +21,4 @@ for i in range(0,7):
     output.write(str(min)+"\n")
     
 output.close()  
-print("execution terminee avec succes, valeur disponibles dans ... .txt ")
+print("execution terminee avec succes, valeur disponibles dans "+ output_file_name +".txt ")

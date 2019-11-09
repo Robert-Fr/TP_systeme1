@@ -1,10 +1,10 @@
-#arguments : <nb_threads> <nom_fichier_min> <nb_proc>
+#arguments : <nb_threads> <nb_proc>
 #ouverture du fichier contenant les temps minimum pour une taille donnée :
 import sys
 import os
 
 min_time=[]
-min_time_file=open(sys.argv[2],"r")
+min_time_file=open("min_time_seq.txt","r")
 it=0
 #remplissage de la liste avec les valeurs du fichier
 for line in min_time_file:
@@ -27,7 +27,7 @@ for i in range(5,20):
         res=os.systeme("./tri_thread sys.argv[1] size")
         #recupérer la valeur de retour 
         acc=min_time[i-5]/res
-        eff=acc/sys.argv[3]
+        eff=acc/sys.argv[2]
         #ecriture dans fich_acc -> 10^i;j;acc
         acc_file.write(str(size)+";"+str(j)+";"+str(acc))
         #ecriture dans fich_eff -> 10^i;j;eff
