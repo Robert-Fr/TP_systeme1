@@ -112,12 +112,12 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
 min_time_seq_file_name=sys.argv[1]
 nb_proc_sys=sys.argv[2]
 #on genere d'abord un fichier contenant les valeurs minimale de temps sur 100 execution que le tri sequentiel va mettre pour terminer pour chaque taille de notre ensemble
-gen_min_time_seq()
+#gen_min_time_seq()
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
 #for size in ["1","2","3","4","5","6","7"]:
-for size in ["1","2"]:
+for size in ["4","5"]:
     calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
    
 #for nb_thread in ["2","4","8","16","32"]:
