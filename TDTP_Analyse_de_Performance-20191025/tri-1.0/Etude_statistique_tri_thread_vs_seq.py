@@ -88,7 +88,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
     eff_file=open(eff_file_name,"w")
     eff_file.write("Taille_mat;Run_ID;Eff"+"\n")
 
-    for i in range(0,8):
+    for i in range(5,8):
         size=10**i
         input_file_name="test_"+str(i)+".txt"
         for j in range(100):
@@ -117,7 +117,7 @@ nb_proc_sys=sys.argv[2]
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
 #for size in ["1","2","3","4","5","6","7"]:
-for size in ["4","5"]:
+for size in ["5","6"]:
     calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
    
 #for nb_thread in ["2","4","8","16","32"]:
