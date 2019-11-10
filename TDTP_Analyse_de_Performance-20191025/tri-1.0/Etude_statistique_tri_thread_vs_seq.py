@@ -96,7 +96,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
     eff_file.write("Taille_mat;Run_ID;Eff"+"\n")
 
     #for i in range(5,9):
-    for i in ["100000","500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+    for i in ["500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
         #size=10**i
         size=i
         #input_file_name="test_"+str(i)+".txt"
@@ -109,7 +109,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
             out.decode("utf-8")
             #print(out)
             #recuperer la valeur de retour 
-            acc=min_time[(int(size_param)/500000)-1]/float(out)
+            acc=min_time[(int(i)/500000)-1]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
             #acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
@@ -130,11 +130,11 @@ nb_proc_sys=sys.argv[2]
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
-for size in ["100000","500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+for size in ["500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
 #for size in ["5","6","7"]:
     #for size in ["5","6"]:
-    calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
+    #calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
    
-for nb_thread in ["2","4","8","16","32"]:
+for nb_thread in ["2","4","8","16"]:
     #for nb_thread in ["2"]:
     calcul_stats_tri_th_fixed(nb_threads=nb_thread,nb_proc=nb_proc_sys)
