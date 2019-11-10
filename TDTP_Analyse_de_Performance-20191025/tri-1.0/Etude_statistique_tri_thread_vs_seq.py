@@ -65,7 +65,7 @@ def calcul_stats_tri_size_fixed(size_param="5",nb_proc="8",min_time_file_param="
             out=subprocess.check_output("./tri_threads --parallelism " + str(i) + " --rusage < " +input_file_name,shell=True)
             out.decode("utf-8")
             #recuperer la valeur de retour 
-            acc=min_time[int(size_param)]/float(out)
+            acc=min_time[(int(size_param)/500000)-1]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
             acc_file.write(str(i)+";"+str(j)+";"+str(acc)+"\n")
@@ -109,7 +109,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
             out.decode("utf-8")
             #print(out)
             #recuperer la valeur de retour 
-            acc=min_time[i]/float(out)
+            acc=min_time[(int(size_param)/500000)-1]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
             #acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
@@ -126,7 +126,7 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
 min_time_seq_file_name=sys.argv[1]
 nb_proc_sys=sys.argv[2]
 #on genere d'abord un fichier contenant les valeurs minimale de temps sur 100 execution que le tri sequentiel va mettre pour terminer pour chaque taille de notre ensemble
-gen_min_time_seq()
+#gen_min_time_seq()
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
