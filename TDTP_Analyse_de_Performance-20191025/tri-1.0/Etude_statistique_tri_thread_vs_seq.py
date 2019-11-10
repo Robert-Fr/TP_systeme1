@@ -130,7 +130,7 @@ nb_proc_sys=sys.argv[2]
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
-for size in ["500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+#for size in ["500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
 #for size in ["5","6","7"]:
     #for size in ["5","6"]:
     #calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
