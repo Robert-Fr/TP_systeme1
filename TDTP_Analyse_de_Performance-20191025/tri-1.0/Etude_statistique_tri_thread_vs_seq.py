@@ -13,14 +13,19 @@ def gen_min_time_seq (output_file_param="min_time_seq.txt") :
     output_file_name=output_file_param
     output=open(output_file_name,"w")
 
-    for i in range(0,9):
-        min=1000000.0
-        size=10**i
-        nom_fichier_sortie="test_"+str(i)+".txt"
-        out_useless=subprocess.check_output("./creer_vecteur --seed 42 --size " +str(size)+ " > "+ nom_fichier_sortie,shell=True)
+    #for i in range(0,9):
+    for i in ["100000","500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+        min=1000000000000000.0
+        #size=10**i
+        size=i
+        #nom_fichier_sortie="test_"+str(i)+".txt"
+        nom_fichier_sortie="test_"+i+".txt"
+        #out_useless=subprocess.check_output("./creer_vecteur --seed 42 --size " +str(size)+ " > "+ nom_fichier_sortie,shell=True)
+        out_useless=subprocess.check_output("./creer_vecteur --seed 42 --size " +size+ " > "+ nom_fichier_sortie,shell=True)
         out_useless.decode("utf-8")
         for j in range(100):
-            print("execution "+str(j)+" de gen_min_time_seq pour size = "+ str(size))
+            #print("execution "+str(j)+" de gen_min_time_seq pour size = "+ str(size))
+            print("execution "+str(j)+" de gen_min_time_seq pour size = "+ size)
             val=subprocess.check_output("./tri_sequentiel --rusage < "+ nom_fichier_sortie,shell=True)
             val.decode("utf-8")
             #print(float(val))
@@ -52,7 +57,7 @@ def calcul_stats_tri_size_fixed(size_param="5",nb_proc="8",min_time_file_param="
 
     input_file_name="test_"+size_param+".txt"
 
-    for i in ["2","4","8","16","32"]:
+    for i in ["2","4","8","16"]:
         #generer un vecteur avec la nouvelle taille
         for j in range(100):
             print("execution "+str(j)+" de calcul_stats_tri_size_fixed pour nb_th = "+ str(i))
@@ -90,11 +95,15 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
     eff_file=open(eff_file_name,"w")
     eff_file.write("Taille_mat;Run_ID;Eff"+"\n")
 
-    for i in range(5,9):
-        size=10**i
-        input_file_name="test_"+str(i)+".txt"
+    #for i in range(5,9):
+    for i in ["100000","500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+        #size=10**i
+        size=i
+        #input_file_name="test_"+str(i)+".txt"
+        input_file_name="test_"+i+".txt"
         for j in range(100):
-            print("execution "+str(j)+" de calcul_stats_tri_th_fixed pour size = "+ str(size))
+            #print("execution "+str(j)+" de calcul_stats_tri_th_fixed pour size = "+ str(size))
+            print("execution "+str(j)+" de calcul_stats_tri_th_fixed pour size = "+ size)
             #execution de ./tri_thread sys.argv[1] size NPO utiliser le nouveau vecteur
             out=subprocess.check_output("./tri_threads --parallelism " +  nb_threads + " --rusage < " +input_file_name,shell=True)
             out.decode("utf-8")
@@ -103,9 +112,11 @@ def calcul_stats_tri_th_fixed(nb_threads="4",nb_proc="8",min_time_file_param="mi
             acc=min_time[i]/float(out)
             eff=acc/float(nb_proc)
             #ecriture dans fich_acc -> 10^i;j;acc
-            acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
+            #acc_file.write(str(size)+";"+str(j)+";"+str(acc)+"\n")
+            acc_file.write(size+";"+str(j)+";"+str(acc)+"\n")
             #ecriture dans fich_eff -> 10^i;j;eff
-            eff_file.write(str(size)+";"+str(j)+";"+str(eff)+"\n")
+            #eff_file.write(str(size)+";"+str(j)+";"+str(eff)+"\n")
+            eff_file.write(size+";"+str(j)+";"+str(eff)+"\n")
 
     acc_file.close()
     eff_file.close()
@@ -119,7 +130,8 @@ gen_min_time_seq()
 #a ce stade la on a aussi les fichiers contenants les vecteurs sur lesquels nous allons effectuer nos tri -> fichiers "test_x.txt"
 
 #on appelle ensuite les fonction generant les fichiers desires, qui seront ensuite lu par un script R pour afficher les donnees sous forme de graphe :
-for size in ["5","6","7","8"]:
+for size in ["100000","500000","1000000","1500000","2000000","2500000","3000000","3500000","4000000","4500000","5000000"]:
+#for size in ["5","6","7"]:
     #for size in ["5","6"]:
     calcul_stats_tri_size_fixed(size_param=size,nb_proc=nb_proc_sys)
    
