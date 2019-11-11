@@ -1,0 +1,9 @@
+( a mettre après les graphes )
+D'après nos résultats d'experimentation nous avons pu observer certains des facteurs qui sont listé et les avons déjà explicité, nous allons parler plus en details de ceux qui n'ont pas été traité
+Comme nous l'avons vu l'algorithme utilisé peut influencer l'execution d'un programme parallèle, selon s'il est codé de sorte à être fait en parallèle de manière efficace ou nous
+le nombre de thread utilisé, si le nombre est ben chosit comme nous l'avons vu dans les expérimentation, permet d'avoir de meilleurs performances, des moins bonnes performances si le nombre est vraiment mal choisit (plusieurs facteurs à prendre en compte)
+la bibliothèque de thread peut également jouer, d'une bibliothèque à une autre peut être qu'en fonction de l'architecture de la machine une sera plus performante qu'une autre (nous ne l'avons pas testé) 
+le système d'exploitation joue égalment un rôle, l'ordonnanceur étant un acteur clé dans l'éxécution d'un programme parallèle
+le nombre de processeur de la machine joue également, pour un nombre de thread otpimal choisit, plus il y a de puissance de calcul dans une machine plus l'éxécution serait performante
+l'architecture mémoire de la machine jouerait également un role dans le cas d'accès mémoire dans le programme, plus rapide seraient les accès mémoire, meilleures seraient les performances
+S'il y a des utilisateurs connectés sur la machine, la machine doit alors partagé ses ressources, les performances sont alors forcément moins bonne que si on avait toutes les ressources pour nous seuls.
