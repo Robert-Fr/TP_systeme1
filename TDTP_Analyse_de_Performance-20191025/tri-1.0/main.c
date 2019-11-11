@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 		gettimeofday(tp2,NULL);
 		tp_total->tv_sec=tp2->tv_sec - tp1->tv_sec;
 		tp_total->tv_usec=tp2->tv_usec - tp1->tv_usec;
-		
+		printf("%lld\n",to_usec(tp_total->tv_sec)+to_usec(tp_total->tv_usec) );
 		//printf("%ld,%ld s\n", (long)tp_total->tv_sec,(long)tp_total->tv_usec);
 	}
 	if(ressources ==1 ){
