@@ -1,0 +1,29 @@
+Réponse aux questions en haut du sujet :
+1 :
+Expérimentation effectuées :
+    nous avons choisi de faire deux collections de graphe
+    une collection représentant l'evolution de l'efficacité et de l'accélération de notre algorithme de tri en version sequentiel par rapport a la version mlti threadé, et ce pour une taille fixe, avec le nombre de thread qui évolue. 
+    La collection est composée de 9 graphes,
+    donc 9 valeurs de taille de vecteur à trier qui sont fixés, puis on fait evoluer le nombre de threads. De plus, il y a 100 execution du tri pour chaque taille donnée et nombre de thread donné. 
+    Le script R que nous avons utilisé pour obtenir ces graphes est un copier/coller du script exemple fourni avec le TP, nous lui fournissons l'ensemble des données récoltés par les 100 executions pour chaque nombre de thread pour tracer un graphe.
+    
+    
+    Une deuxième collection représentant pour un nombre de thread fixe, l'évolution de l'accélération et de l'éfficacité en fonction de la taille du vecteur.
+    Il y a 4 graphes dans cette collection, le nombre de thread fixé étant soit 2, 4, 8, ou 16.
+    Le script R que nous avons utilisé pour obtenir ces graphes est un copier/coller du script exemple fourni avec le TP, nous lui fournissons l'ensemble des données récoltés par les 100 executions pour chaque taille pour tracer un graphe.
+    
+    Les vecteurs à trier ont été crées à l'avance, ils ont une taille variant de 1.000.000 à 5.000.000, les valeurs de chaque éléments du vecteur ont une valeur entre 0 et 1000 (valeur par défaut)
+    Nous n'avons pas fait varier l'ensemble des valeurs possible pour ne pas se mélanger dans toutes les variantes possible et imaginable de tests, cependant nous savons que plus l'ensemble de valeur est grand, plus le vecteur sera long a trier (car plus grande probabilités de devoir déplacer un élément et donc le temps d'éxecution augmente)  
+    Nous n'avons pas non plus fait varier l'algorithme de tri, qui selon comment il est implémenté peut être optimisé pour être utilisé en multi threadé, ou bien en séquentiel, en l'occurence la version proposée semble repartir le vecteur en sous vecteurs en fonction du nombre de threads, il semblerait qu'il soit parti pour être plus performant en multi threadé qu'en séquentiel et c'est ce que nous verrons dans l'études de nos graphes.
+    Pour calculer l'accélération et l'efficacité pour chaque collection de donnée il faut également d'autres données, les ressources utilisées (nombre de processeurs notamment) aisni que le temps minimum que l'algorithme en sequentiel met à trier le vecteur d'une taille donnée, nous avons éxécuté le programme sur mandelbrot qui possède 8 processeurs milti coeurs, mais qui doit partager ses ressources entre tout les utilisateur connectés, ne connaissant pas cet inconnu nous ne pouvons pas estimé des ressources réelles associé à nos éxécution, et ne pouvons pas garantir que chaque execution ait eu autant de ressource que les autres, cependant le fait de faire une moyenne sur 100 éxecution permet d'obtenir une valeur représentative, la marge d'erreur apparaissant sur les graphes étant faible.
+    
+    Etudes de la collection 1 : les graphes ou le nombre de thread evolue pour une taille de vecteur fixé à l'avance
+    Plusieurs informations importantes ressortent de ces graphes :
+    Le fait que quand on choisit un nombre de thread qui ne coincide pas avec les ressources de la machine, les performances chutent, on peut déduire de nos 9 graphes que le nombre optimal sur cette machine à ce moment la semble être 4 threads.
+    Le fait que le nombre de thread optimal dépend également de la taille du vecteur à trier, en effet si le vecteur est petit et qu'on donne un nombre de thread grand les performances chutent, on perd plus de temps que nécéssaire a gérer les threads, au contraire si on ne met pas un nombre de thread suffisant, on tend vers le temps d'éxecution de la version séquentielle ( valeur d'accélération de 1). Nous le voyons pour le nombre de thread = 8 : la valeur de l'accélération est plus faible que pour 4 threads, cependant la valeur augmente un peu quand la taille augmente
+    
+    Etudes de la collection 2 : les graphes ou le nombre de thread evolue pour une taille de vecteur fixé à l'avance
+    nous pouvons confirmer des informations que nous avosn vu dans la précédente collection avec ces graphes :
+    Le fait qu'il faut bien choisir le nombre de thread, d'une part en fonction de la machine mais aussi en fonction de ce qu'il faut éxéctuer, le premier graphe nous montre une valeur de l'accélération et efficacité plus faible que les autres, c'est normale étant donné qu'on ne donne pas assez de ressources au programme, on pourrait lui donner un nombre de threads plus grand qui se rapprocherait du nombre otpimal, qui semblait être 4.
+    Comme on l'avait déduis précédemment le graphe pour 4 threads démontre les meilleurs performances, tandis que pour plus de thread les performances chutent.
+    Par ailleurs nous remarquons encore une fois que quand on donne un nombre trop grand de thread (ici 16 mais on aurait pu choisir 32 pour pousser un peu plus loin le résultat), les performances sont plus basses que pour un nombre plus petit certe, mais la performance augmente quand la taille du vecteur augmente, donc cela prouve que la taille du vecteur est bien en lien avec le choix à faire pour le nombre de thread.
