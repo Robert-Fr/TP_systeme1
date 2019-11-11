@@ -1,0 +1,5 @@
+Oui l'ordonnanceur et les autres utilisateurs jouent un role, l'ordonanceur va endormir les threads pour partager les ressources de la machine, prenons l'exemple d'un thread commencant son execution a un temps t1, endormi a un temps t2, reveillé en t3, et finissant son éxecution en t4. Le temps réel d'execution de ce thread serait (t2-t1) + (t4-t3) cependant, avec gettimeofday() on prendrait aussi la mesure du temps durant lequel le thread est endormi, et comme c'est l'ordonanceur qui gère les ressources en fonctions des utilisations du processeur, ces deux paramètres jouent un role.
+
+4.1 oui le nombre de thread impact sur la valeur retourné :
+le temps utilisateur rensigné peut ne pas changer, car il représente la somme des teps d'executions des threads du processus
+cependant le temps superviseur augmente si le nombre de thread augmente par rapport au nombre de processeur, il y a un nombre de thread optimal a choisir pour executer son programme dans es meilleurs conditions possible ( nous le verrons dans les experiences plus tard) et si nous dépassons ce nombre l'ordonanceur va passer plus de temps à gérer les threads.
