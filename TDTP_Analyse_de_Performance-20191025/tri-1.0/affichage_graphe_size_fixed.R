@@ -6,8 +6,8 @@ library(plyr)
 library(reshape2)
 
 # extraction des données
-data_para_acc <- data.frame(read.csv2(file="acc_size_fixed4.txt",sep=';', dec='.'))
-data_para_eff <- data.frame(read.csv2(file="eff_size_fixed4.txt",sep=';', dec='.'))
+data_para_acc <- data.frame(read.csv2(file="fichier_donnee/acc_size_fixed5000000.txt",sep=';', dec='.'))
+data_para_eff <- data.frame(read.csv2(file="fichier_donnee/eff_size_fixed5000000.txt",sep=';', dec='.'))
 
 # analyse statistique
 
@@ -26,7 +26,7 @@ p <- p + geom_point(data=stat_eff, aes(x=NB_Thread, y=mean, colour = "efficacite
 p <- p + geom_errorbar(data=stat_eff,aes(x=NB_Thread,ymin=mean-se,ymax=mean+se),width=.2,position=position_dodge())
 
 p <- p + xlab("Taille des matrices")
-p <- p + ylab("Unité arbitraire")
+p <- p + ylab("Unite arbitraire")
 
 cols <- c("acceleration"="red","efficacite"="blue")
 p <- p + scale_colour_manual("", 
